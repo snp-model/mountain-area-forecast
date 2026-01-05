@@ -91,9 +91,6 @@ describe('日付フォーマットの整合性テスト', () => {
     // toISOString()を使うとUTC変換されて日付がずれる問題の回帰テスト
     const testDate = new Date('2026-01-05T00:00:00'); // JST 午前0時
     
-    // 誤った方法（toISOString使用）→ UTCに変換されて前日になる可能性
-    const wrongFormat = testDate.toISOString().split('T')[0];
-    
     // 正しい方法（ローカル時刻使用）
     const year = testDate.getFullYear();
     const month = String(testDate.getMonth() + 1).padStart(2, "0");
@@ -102,9 +99,6 @@ describe('日付フォーマットの整合性テスト', () => {
     
     // 正しい方法で生成した日付が期待通りであること
     expect(correctFormat).toBe('2026-01-05');
-    
-    // Note: wrongFormatは環境によって異なる可能性があるため、
-    // ここでは正しい方法が期待通りに動作することのみを検証
   });
 });
 
@@ -121,7 +115,7 @@ describe('土曜日の検出ロジックテスト', () => {
       { day: 6, name: '土曜日', expected: 0 }, // 土曜日 → 0日後
     ];
 
-    testCases.forEach(({ day, name, expected }) => {
+    testCases.forEach(({ day, expected }) => {
       let daysUntilSaturday: number;
       if (day === 6) {
         daysUntilSaturday = 0;
