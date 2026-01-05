@@ -1,0 +1,16 @@
+{
+  "name": "山域別天気予報",
+  "short_name": "山域天気",
+  "description": "日本の主要山域の天気予報を一目で確認できるアプリケーション",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "960x960",
+      "type": "image/png"
+    }
+  ]
+}
