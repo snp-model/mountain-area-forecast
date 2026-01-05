@@ -7,7 +7,7 @@ export default defineConfig({
   // GitHub Pagesにデプロイする場合、リポジトリ名をbaseに設定
   // 例: base: '/mountain-area-forecast/'
   // カスタムドメインの場合は base: '/' のまま
-  base: '/',
+  base: '/mountain-area-forecast/',
   test: {
     globals: true,
     environment: 'jsdom',
