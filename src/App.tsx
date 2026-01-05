@@ -8,6 +8,7 @@ import { MountainMap } from "./components/Map";
 import { DateSelector } from "./components/DateSelector";
 import { LoadingOverlay } from "./components/LoadingOverlay";
 import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 import { MOUNTAIN_AREAS } from "./data/mountains";
 import { fetchAllMountainWeather, type MountainWeather } from "./services/weather";
 
@@ -107,6 +108,7 @@ function App() {
           </>
         )}
       </main>
+      <Footer />
     </>
   );
 }

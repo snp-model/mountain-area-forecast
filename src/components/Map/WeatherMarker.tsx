@@ -74,8 +74,6 @@ export function WeatherMarker({ mountain, weather }: WeatherMarkerProps) {
         <div style={{ textAlign: "center" }}>
           <strong>{mountain.name}</strong>
           <br />
-          <small>{mountain.region}</small>
-          <br />
           午前: {amDesc} → 午後: {pmDesc}
           <br />
           最大風速: {weather?.maxWindSpeed ?? "--"}m/s

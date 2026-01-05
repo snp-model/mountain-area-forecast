@@ -177,7 +177,7 @@ body {
 /* 日付セレクタ */
 .date-selector {
   position: fixed;
-  bottom: 16px;
+  bottom: 48px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--color-surface);
@@ -216,4 +216,45 @@ body {
 
 .date-selector__button--active:hover {
   background: var(--color-primary);
+}
+
+/* フッター */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding: 8px 16px;
+  z-index: 999;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.footer__content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.footer__text {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.footer__link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer__link:hover {
+  text-decoration: underline;
+}
+
+.footer__separator {
+  color: var(--color-border);
+  font-size: 11px;
 }
