@@ -1,0 +1,78 @@
+/**
+ * 山岳地図コンポーネント
+ * 日本全国の山域を表示し、天気マーカーをレンダリングする
+ */
+
+import { MapContainer, TileLayer } from "react-leaflet";
+import { WeatherMarker } from "./WeatherMarker";
+import type { MountainArea } from "../../data/mountains";
+import type { MountainWeather, DailyWeather } from "../../services/weather";
+
+interface MountainMapProps {
+  mountains: MountainArea[];
+  weatherData: Map<string, MountainWeather>;
+  selectedDate: string;
+}
+
+// 日本の中心座標（大体の中央）
+const JAPAN_CENTER: [number, number] = [36.5, 138.0];
+const DEFAULT_ZOOM = 8;
+
+// 日本の境界（移動範囲制限）
+const JAPAN_BOUNDS: [[number, number], [number, number]] = [
+  [24.0, 122.0], // 南西端（与那国島付近）
+  [46.0, 154.0], // 北東端（択捉島付近）
+];
+
+
+
+/**
+ * 指定日の天気データを取得
+ */
+function getWeatherForDate(
+  mountainId: string,
+  weatherData: Map<string, MountainWeather>,
+  selectedDate: string
+): DailyWeather | null {
+  const mountainWeather = weatherData.get(mountainId);
+  if (!mountainWeather) return null;
+
+  return (
+    mountainWeather.forecasts.find((f) => f.date === selectedDate) || null
+  );
+}
+
+export function MountainMap({
+  mountains,
+  weatherData,
+  selectedDate,
+}: MountainMapProps) {
+  return (
+    <MapContainer
+      center={JAPAN_CENTER}
+      zoom={DEFAULT_ZOOM}
+      maxBounds={JAPAN_BOUNDS}
+      maxBoundsViscosity={1.0}
+      zoomControl={false}
+      scrollWheelZoom={false}
+      doubleClickZoom={false}
+      touchZoom={false}
+      boxZoom={false}
+      dragging={true}
+      style={{ width: "100%", height: "100%" }}
+    >
+
+      <TileLayer
+        attribution='&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
+        url="https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png"
+      />
+      {mountains.map((mountain) => (
+        <WeatherMarker
+          key={mountain.id}
+          mountain={mountain}
+          weather={getWeatherForDate(mountain.id, weatherData, selectedDate)}
+        />
+      ))}
+    </MapContainer>
+  );
+}
