@@ -5,6 +5,7 @@
 
 /* ライトテーマのベース設定 */
 :root {
+  color-scheme: light;
   --color-primary: #2563eb;
   --color-background: #f8fafc;
   --color-surface: #ffffff;
@@ -102,8 +103,6 @@ body {
 .weather-marker--neutral {
   background: var(--color-surface); /* 白 (デフォルト) */
 }
-
-
 
 /* ローディング表示 */
 .loading-overlay {
