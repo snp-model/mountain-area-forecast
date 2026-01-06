@@ -14,9 +14,9 @@ interface MountainMapProps {
   selectedDate: string;
 }
 
-// 日本の中心座標（大体の中央）
-const JAPAN_CENTER: [number, number] = [36.5, 138.0];
-const DEFAULT_ZOOM = 8;
+// 富士山と八ヶ岳の中間付近を初期表示のセンターに設定
+const JAPAN_CENTER: [number, number] = [36.275, 138.6];
+const DEFAULT_ZOOM = 7;
 
 // 日本の境界（移動範囲制限）
 const JAPAN_BOUNDS: [[number, number], [number, number]] = [
