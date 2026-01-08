@@ -321,12 +321,83 @@ export async function fetchWeatherForMountain(
   };
 }
 
+// localStorageのキャッシュキー
+const CACHE_KEY = "mountain-weather-cache";
+// キャッシュ有効時間（30分）
+const CACHE_DURATION_MS = 30 * 60 * 1000;
+
 /**
- * 複数の山域の天気を一括取得
+ * キャッシュされたデータの型
+ */
+interface WeatherCache {
+  data: Array<[string, MountainWeather]>;
+  timestamp: number;
+}
+
+/**
+ * localStorageからキャッシュを読み込む
+ */
+function loadWeatherCache(): Map<string, MountainWeather> | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return null;
+
+    const cache: WeatherCache = JSON.parse(cached);
+    const now = Date.now();
+
+    // キャッシュが期限切れかチェック
+    if (now - cache.timestamp > CACHE_DURATION_MS) {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+
+    // Map に変換（fetchedAt を Date に復元）
+    const map = new Map<string, MountainWeather>();
+    for (const [key, value] of cache.data) {
+      map.set(key, {
+        ...value,
+        fetchedAt: new Date(value.fetchedAt),
+      });
+    }
+
+    console.log("[Cache] Loaded weather data from cache");
+    return map;
+  } catch (err) {
+    console.error("[Cache] Failed to load cache:", err);
+    localStorage.removeItem(CACHE_KEY);
+    return null;
+  }
+}
+
+/**
+ * localStorageにキャッシュを保存
+ */
+function saveWeatherCache(data: Map<string, MountainWeather>): void {
+  try {
+    const cache: WeatherCache = {
+      data: Array.from(data.entries()),
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+    console.log("[Cache] Saved weather data to cache");
+  } catch (err) {
+    console.error("[Cache] Failed to save cache:", err);
+  }
+}
+
+/**
+ * 複数の山域の天気を一括取得（キャッシュ対応）
  */
 export async function fetchAllMountainWeather(
   mountains: MountainArea[]
 ): Promise<Map<string, MountainWeather>> {
+  // まずキャッシュをチェック
+  const cached = loadWeatherCache();
+  if (cached) {
+    return cached;
+  }
+
+  // キャッシュがない場合はAPIから取得
   const results = new Map<string, MountainWeather>();
 
   // API負荷軽減のため、並列数を制限
@@ -340,6 +411,9 @@ export async function fetchAllMountainWeather(
       results.set(result.mountainId, result);
     }
   }
+
+  // キャッシュに保存
+  saveWeatherCache(results);
 
   return results;
 }
