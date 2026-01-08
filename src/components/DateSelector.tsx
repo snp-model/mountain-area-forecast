@@ -7,6 +7,7 @@ interface DateSelectorProps {
   dates: string[];
   selectedDate: string;
   onSelectDate: (date: string) => void;
+  isPanelOpen?: boolean;
 }
 
 /**
@@ -29,11 +30,16 @@ export function DateSelector({
   dates,
   selectedDate,
   onSelectDate,
+  isPanelOpen = false,
 }: DateSelectorProps) {
   const today = new Date().toISOString().split("T")[0];
 
   return (
-    <div className="date-selector">
+    <div
+      className={`date-selector ${
+        isPanelOpen ? "date-selector--panel-open" : ""
+      }`}
+    >
       {dates.map((date) => (
         <button
           key={date}

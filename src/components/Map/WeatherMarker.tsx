@@ -7,11 +7,16 @@ import { Marker, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import type { MountainArea } from "../../data/mountains";
 import type { DailyWeather } from "../../services/weather";
-import { WEATHER_CODES, calculateClimbingIndex } from "../../services/weather";
+import {
+  WEATHER_CODES,
+  calculateClimbingIndex,
+  isStrongWind,
+} from "../../services/weather";
 
 interface WeatherMarkerProps {
   mountain: MountainArea;
   weather: DailyWeather | null;
+  onClick: (mountain: MountainArea) => void;
 }
 
 /**
@@ -27,6 +32,7 @@ function createWeatherIcon(
   const pmIcon = weather
     ? WEATHER_CODES[weather.pmWeatherCode]?.icon || "❓"
     : "⏳";
+  const windSpeedValue = weather?.maxWindSpeed || 0;
   const windSpeed = weather ? `${weather.maxWindSpeed}m/s` : "--";
 
   // 登山指数を計算
@@ -46,7 +52,9 @@ function createWeatherIcon(
         <span class="weather-marker__arrow">→</span>
         <span>${pmIcon}</span>
       </div>
-      <div class="weather-marker__wind">💨 ${windSpeed}</div>
+      <div class="weather-marker__wind ${
+        isStrongWind(windSpeedValue) ? "weather-marker__wind--bad" : ""
+      }">💨 ${windSpeed}</div>
     </div>
   `;
 
@@ -58,7 +66,11 @@ function createWeatherIcon(
   });
 }
 
-export function WeatherMarker({ mountain, weather }: WeatherMarkerProps) {
+export function WeatherMarker({
+  mountain,
+  weather,
+  onClick,
+}: WeatherMarkerProps) {
   const icon = createWeatherIcon(mountain, weather);
 
   const amDesc = weather
@@ -69,7 +81,13 @@ export function WeatherMarker({ mountain, weather }: WeatherMarkerProps) {
     : "読込中";
 
   return (
-    <Marker position={[mountain.lat, mountain.lon]} icon={icon}>
+    <Marker
+      position={[mountain.lat, mountain.lon]}
+      icon={icon}
+      eventHandlers={{
+        click: () => onClick(mountain),
+      }}
+    >
       <Tooltip direction="top" offset={[0, -30]}>
         <div style={{ textAlign: "center" }}>
           <strong>{mountain.name}</strong>

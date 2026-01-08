@@ -12,6 +12,7 @@ interface MountainMapProps {
   mountains: MountainArea[];
   weatherData: Map<string, MountainWeather>;
   selectedDate: string;
+  onSelectMountain: (mountain: MountainArea) => void;
 }
 
 // 富士山と八ヶ岳の中間付近を初期表示のセンターに設定
@@ -24,8 +25,6 @@ const JAPAN_BOUNDS: [[number, number], [number, number]] = [
   [46.0, 154.0], // 北東端（択捉島付近）
 ];
 
-
-
 /**
  * 指定日の天気データを取得
  */
@@ -37,15 +36,14 @@ function getWeatherForDate(
   const mountainWeather = weatherData.get(mountainId);
   if (!mountainWeather) return null;
 
-  return (
-    mountainWeather.forecasts.find((f) => f.date === selectedDate) || null
-  );
+  return mountainWeather.forecasts.find((f) => f.date === selectedDate) || null;
 }
 
 export function MountainMap({
   mountains,
   weatherData,
   selectedDate,
+  onSelectMountain,
 }: MountainMapProps) {
   return (
     <MapContainer
@@ -61,7 +59,6 @@ export function MountainMap({
       dragging={true}
       style={{ width: "100%", height: "100%" }}
     >
-
       <TileLayer
         attribution='&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
         url="https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png"
@@ -71,6 +68,7 @@ export function MountainMap({
           key={mountain.id}
           mountain={mountain}
           weather={getWeatherForDate(mountain.id, weatherData, selectedDate)}
+          onClick={onSelectMountain}
         />
       ))}
     </MapContainer>

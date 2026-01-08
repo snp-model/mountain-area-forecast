@@ -7,7 +7,10 @@ import type { MountainArea } from "../data/mountains";
 
 // Open-Meteo の天気コード定義
 // https://open-meteo.com/en/docs
-export const WEATHER_CODES: Record<number, { description: string; icon: string }> = {
+export const WEATHER_CODES: Record<
+  number,
+  { description: string; icon: string }
+> = {
   0: { description: "快晴", icon: "☀️" },
   1: { description: "晴れ", icon: "🌤️" },
   2: { description: "くもり", icon: "⛅" },
@@ -24,15 +27,15 @@ export const WEATHER_CODES: Record<number, { description: string; icon: string }
   65: { description: "強い雨", icon: "🌧️" },
   66: { description: "着氷性の雨", icon: "🌧️" },
   67: { description: "強い着氷性の雨", icon: "🌧️" },
-  71: { description: "弱い雪", icon: "🌨️" },
-  73: { description: "雪", icon: "🌨️" },
-  75: { description: "強い雪", icon: "🌨️" },
-  77: { description: "霧雪", icon: "🌨️" },
+  71: { description: "弱い雪", icon: "⛄" },
+  73: { description: "雪", icon: "⛄" },
+  75: { description: "強い雪", icon: "⛄" },
+  77: { description: "霧雪", icon: "⛄" },
   80: { description: "弱いにわか雨", icon: "🌦️" },
   81: { description: "にわか雨", icon: "🌦️" },
   82: { description: "激しいにわか雨", icon: "🌦️" },
-  85: { description: "弱いにわか雪", icon: "🌨️" },
-  86: { description: "にわか雪", icon: "🌨️" },
+  85: { description: "弱いにわか雪", icon: "⛄" },
+  86: { description: "にわか雪", icon: "⛄" },
   95: { description: "雷雨", icon: "⛈️" },
   96: { description: "雷雨（ひょう）", icon: "⛈️" },
   99: { description: "激しい雷雨", icon: "⛈️" },
@@ -40,12 +43,12 @@ export const WEATHER_CODES: Record<number, { description: string; icon: string }
 
 // 天気コードの悪天候優先度（数値が大きいほど悪い）
 const WEATHER_SEVERITY: Record<number, number> = {
-  0: 0,   // 快晴
-  1: 1,   // 晴れ
-  2: 2,   // くもり
-  3: 3,   // 曇り
-  45: 4,  // 霧
-  48: 5,  // 霧氷
+  0: 0, // 快晴
+  1: 1, // 晴れ
+  2: 2, // くもり
+  3: 3, // 曇り
+  45: 4, // 霧
+  48: 5, // 霧氷
   51: 10, // 弱い霧雨
   53: 11, // 霧雨
   55: 12, // 強い霧雨
@@ -78,8 +81,23 @@ export interface DailyWeather {
   maxWindSpeed: number;
 }
 
+// 1時間ごとの天気データ
+export interface HourlyWeather {
+  time: string; // "2026-01-08T06:00"形式
+  weatherCode: number;
+  temperature: number; // 気温（℃）
+  windSpeed: number; // 風速（m/s）
+}
+
+// 1時間ごとの天気データ（山域ごと）
+export interface HourlyWeatherData {
+  mountainId: string;
+  hourlyForecasts: HourlyWeather[];
+  fetchedAt: Date;
+}
+
 // 登山指数の定義
-export type ClimbingIndex = 'good' | 'neutral' | 'bad';
+export type ClimbingIndex = "good" | "neutral" | "bad";
 
 // 山域ごとの天気データ
 export interface MountainWeather {
@@ -99,21 +117,36 @@ export function calculateClimbingIndex(
 ): ClimbingIndex {
   // 悪天候コード（雨・雪・雷）
   const badWeatherCodes = [
-    51, 53, 55, 56, 57, // 霧雨
-    61, 63, 65, 66, 67, // 雨
-    71, 73, 75, 77,     // 雪
-    80, 81, 82,         // にわか雨
-    85, 86,             // にわか雪
-    95, 96, 99,         // 雷雨
+    51,
+    53,
+    55,
+    56,
+    57, // 霧雨
+    61,
+    63,
+    65,
+    66,
+    67, // 雨
+    71,
+    73,
+    75,
+    77, // 雪
+    80,
+    81,
+    82, // にわか雨
+    85,
+    86, // にわか雪
+    95,
+    96,
+    99, // 雷雨
   ];
 
   const isAMBad = badWeatherCodes.includes(amWeatherCode);
   const isPMBad = badWeatherCodes.includes(pmWeatherCode);
-  const isStrongWind = maxWindSpeed >= 15;
 
   // Bad判定: 雨・雪・雷が含まれる または 強風
-  if (isAMBad || isPMBad || isStrongWind) {
-    return 'bad';
+  if (isAMBad || isPMBad || isStrongWind(maxWindSpeed)) {
+    return "bad";
   }
 
   // Good判定: 晴れ・くもり・霧のみ かつ 穏やかな風
@@ -123,11 +156,11 @@ export function calculateClimbingIndex(
   const isCalmWind = maxWindSpeed < 10;
 
   if (isAMGood && isPMGood && isCalmWind) {
-    return 'good';
+    return "good";
   }
 
   // それ以外は普通
-  return 'neutral';
+  return "neutral";
 }
 
 /**
@@ -165,6 +198,14 @@ function getWorstWeatherCode(
   return worstCode;
 }
 
+/**
+ * 強風判定
+ * @param windSpeed 風速 (m/s)
+ * @returns 風速15m/s以上の場合true
+ */
+export function isStrongWind(windSpeed: number): boolean {
+  return windSpeed >= 15;
+}
 
 /**
  * 指定した時間範囲内での最大風速を取得
@@ -192,7 +233,6 @@ function getMaxWindSpeed(
 
   return maxSpeed;
 }
-
 
 /**
  * Open-Meteo APIから天気データを取得
@@ -269,7 +309,10 @@ export async function fetchWeatherForMountain(
   }
 
   // デバッグ用ログ
-  console.log(`[Weather] ${mountain.name}: ${forecasts.length} days`, forecasts.slice(0, 2));
+  console.log(
+    `[Weather] ${mountain.name}: ${forecasts.length} days`,
+    forecasts.slice(0, 2)
+  );
 
   return {
     mountainId: mountain.id,
@@ -299,4 +342,61 @@ export async function fetchAllMountainWeather(
   }
 
   return results;
+}
+
+/**
+ * 特定の山域の1時間ごとの天気を取得（オンデマンド）
+ * マーカークリック時に呼び出される
+ */
+export async function fetchHourlyWeatherForMountain(
+  mountain: MountainArea
+): Promise<HourlyWeatherData> {
+  const params = new URLSearchParams({
+    latitude: mountain.lat.toString(),
+    longitude: mountain.lon.toString(),
+    hourly: "weather_code,wind_speed_10m,temperature_2m",
+    timezone: "Asia/Tokyo",
+    forecast_days: "7",
+  });
+
+  // 標高が高い山は標高モデルを使用
+  if (mountain.elevation > 1500) {
+    params.append("models", "best_match");
+  }
+
+  const response = await fetch(
+    `https://api.open-meteo.com/v1/forecast?${params.toString()}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch hourly weather for ${mountain.name}`);
+  }
+
+  const data = await response.json();
+
+  // 1時間ごとのデータを抽出
+  const hourlyForecasts: HourlyWeather[] = [];
+  const hourlyTime: string[] = data.hourly.time;
+  const hourlyWeatherCode: number[] = data.hourly.weather_code;
+  const hourlyTemperature: number[] = data.hourly.temperature_2m;
+  const hourlyWindSpeed: number[] = data.hourly.wind_speed_10m;
+
+  for (let i = 0; i < hourlyTime.length; i++) {
+    hourlyForecasts.push({
+      time: hourlyTime[i],
+      weatherCode: hourlyWeatherCode[i],
+      temperature: Math.round(hourlyTemperature[i] * 10) / 10, // 小数点第1位まで
+      windSpeed: Math.round(hourlyWindSpeed[i]),
+    });
+  }
+
+  console.log(
+    `[Hourly Weather] ${mountain.name}: ${hourlyForecasts.length} hours`
+  );
+
+  return {
+    mountainId: mountain.id,
+    hourlyForecasts,
+    fetchedAt: new Date(),
+  };
 }

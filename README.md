@@ -1,73 +1,107 @@
-# React + TypeScript + Vite
+# 山域別天気予報アプリ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+日本の主要な山域の天気予報を地図上で確認できる Web アプリケーションです。
 
-Currently, two official plugins are available:
+## 🏔️ 機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **地図表示**: 国土地理院の地形図を使用した日本全土の地図表示
+- **山域マーカー**: 全国 27 の山域に天気マーカーを表示
+- **7 日間予報**: 午前・午後の天気と風速を日別に確認
+- **登山指数**: 天気と風速から登山適性を判定（好天・普通・悪天）
+- **1 時間ごとの天気**: マーカークリックで詳細な時間別天気を表示
+- **日付選択**: 画面下部のセレクタで日付を切り替え
 
-## React Compiler
+## 🗺️ 対応山域
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 北海道
 
-## Expanding the ESLint configuration
+- 利尻山（道北）、羅臼岳（道東）、大雪山（道央）、羊蹄山（道南）
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 東北
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- 鳥海山、月山、八甲田山、早池峰山、蔵王山、安達太良山
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 関東・上信越
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- 雲取山、蛭ヶ岳（丹沢）、甲武信ヶ岳（秩父）、日光白根山、茶臼岳（那須）、谷川岳、富士山
+
+### 日本アルプス・八ヶ岳
+
+- 白馬岳、槍ヶ岳、木曽駒ヶ岳、北岳、赤岳、御在所岳（鈴鹿）
+
+### 西日本
+
+- 大山（中国）、石鎚山（四国）、くじゅう連山（九州）、宮之浦岳（屋久島）
+
+## 🛠️ 技術スタック
+
+- **フレームワーク**: React 19 + TypeScript
+- **ビルドツール**: Vite 7
+- **地図**: Leaflet + React-Leaflet
+- **天気 API**: [Open-Meteo](https://open-meteo.com/)
+- **スタイリング**: Tailwind CSS 4
+- **テスト**: Vitest + Testing Library
+
+## 📦 セットアップ
+
+```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバーの起動
+npm run dev
+
+# プロダクションビルド
+npm run build
+
+# ビルドしたファイルのプレビュー
+npm run preview
+
+# テストの実行
+npm run test
+
+# リントの実行
+npm run lint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📁 プロジェクト構造
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/
+│   ├── Map/
+│   │   ├── MountainMap.tsx    # 地図コンポーネント
+│   │   ├── WeatherMarker.tsx  # 天気マーカー
+│   │   └── index.ts
+│   ├── DateSelector.tsx       # 日付選択UI
+│   ├── HourlyWeatherPanel.tsx # 1時間ごとの天気パネル
+│   ├── Header.tsx             # ヘッダー
+│   ├── Footer.tsx             # フッター
+│   └── LoadingOverlay.tsx     # ローディング表示
+├── data/
+│   └── mountains.ts           # 山域データ定義
+├── services/
+│   └── weather.ts             # 天気API連携
+├── App.tsx                    # メインアプリ
+├── index.css                  # グローバルスタイル
+└── main.tsx                   # エントリーポイント
+```
+
+## 🌤️ 登山指数について
+
+登山指数は以下の基準で判定されます:
+
+| 指数 | 色       | 条件                                    |
+| ---- | -------- | --------------------------------------- |
+| 好天 | オレンジ | 晴れ〜曇り・霧のみ かつ 風速 10m/s 未満 |
+| 普通 | 白       | 上記以外で悪天候でない場合              |
+| 悪天 | 青       | 雨・雪・雷を含む または 風速 15m/s 以上 |
+
+## 📝 ライセンス
+
+このプロジェクトは開発中です。
+
+## 🙏 謝辞
+
+- 天気データ: [Open-Meteo](https://open-meteo.com/) - 無料の天気 API
+- 地図データ: [国土地理院](https://maps.gsi.go.jp/) - 地形図タイル
