@@ -194,7 +194,7 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  padding: 8px;
+  padding: 4px;
   display: flex;
   gap: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -206,7 +206,7 @@ body {
 
 /* パネル表示時にDateSelectorを上に移動 */
 .date-selector--panel-open {
-  bottom: calc(36px + var(--hourly-panel-height) + var(--hourly-panel-gap));
+  bottom: calc(20px + var(--hourly-panel-height) + var(--hourly-panel-gap));
 }
 
 .date-selector__button {
